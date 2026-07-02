@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:fitfuel;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;NON_KEYWORDS=USER,ORDER,VALUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+fitfuel:
+  jwt:
+    secret: test-secret-with-at-least-thirty-two-characters
+    ttl-minutes: 60

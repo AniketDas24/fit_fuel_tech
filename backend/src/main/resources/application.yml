@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: fitfuel-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/fitfuel}
+    username: ${DATABASE_USERNAME:fitfuel}
+    password: ${DATABASE_PASSWORD:fitfuel}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: ${PORT:8080}
+
+fitfuel:
+  jwt:
+    secret: ${JWT_SECRET:change-this-development-secret-at-least-32-chars}
+    ttl-minutes: ${JWT_TTL_MINUTES:1440}

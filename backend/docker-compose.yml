@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: fitfuel-postgres
+    environment:
+      POSTGRES_DB: fitfuel
+      POSTGRES_USER: fitfuel
+      POSTGRES_PASSWORD: fitfuel
+    ports:
+      - "5432:5432"
+    volumes:
+      - fitfuel_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  fitfuel_postgres_data:
