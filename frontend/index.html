@@ -18,9 +18,20 @@ html { scroll-behavior: smooth; }
   --card: #141414;
   --border: #222;
   --text: #f5f5f0;
-  --muted: #777;
+  --muted: #999;
+  --text-secondary: #ccc;
+  --text-dim: #aaa;
   --green: #4caf50;
   --green-dim: rgba(76,175,80,0.12);
+  --fs-3xs: clamp(11px, 2.4vw, 12px);
+  --fs-2xs: clamp(11px, 2.8vw, 13px);
+  --fs-sm: clamp(12px, 3.2vw, 14px);
+  --fs-base: clamp(14px, 3.6vw, 16px);
+  --fs-md: clamp(16px, 4.4vw, 20px);
+  --fs-lg: clamp(18px, 5vw, 24px);
+  --fs-xl: clamp(22px, 6vw, 30px);
+  --fs-hero: clamp(40px, 12vw, 70px);
+  --fs-hero-modal: clamp(42px, 12vw, 58px);
 }
 
 body {
@@ -133,7 +144,7 @@ body {
   text-transform: uppercase;
   display: block;
 }
-.service-badge .svc-desc { font-size: clamp(10px, 2.5vw, 12px); color: #888; display: block; }
+.service-badge .svc-desc { font-size: clamp(10px, 2.5vw, 12px); color: var(--muted); line-height: 1.35; display: block; }
 
 /* ── WHY STRIP ────────────────────────── */
 .why-strip {
@@ -166,8 +177,9 @@ body {
 }
 .section-sub {
   font-size: clamp(10px, 2.8vw, 12px);
-  color: #666;
+  color: var(--muted);
   letter-spacing: 1px;
+  line-height: 1.3;
   margin-bottom: 1rem;
 }
 
@@ -185,7 +197,8 @@ body {
 .normal-header { background: #0d1a0d; border-bottom: 1px solid #1a3a1a; }
 .diet-badge {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 11px;
+  font-size: var(--fs-3xs);
+  font-weight: 700;
   letter-spacing: 2px;
   padding: 3px 10px;
   border-radius: 20px;
@@ -203,7 +216,7 @@ body {
 .loss-title { color: var(--orange); }
 .gain-title { color: #ffa500; }
 .normal-title { color: #4caf50; }
-.diet-desc { font-size: clamp(10px, 2.8vw, 12px); color: #888; margin-top: 2px; }
+.diet-desc { font-size: clamp(10px, 2.8vw, 12px); color: var(--muted); line-height: 1.4; margin-top: 2px; }
 
 /* ── TABLE ────────────────────────────── */
 .diet-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -215,14 +228,14 @@ table.menu {
 }
 table.menu th {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(9px, 2.2vw, 11px);
+  font-size: var(--fs-3xs);
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
   padding: 8px 10px;
   text-align: left;
   background: #0d0d0d;
-  color: #666;
+  color: var(--muted);
   border-bottom: 1px solid #222;
 }
 table.menu td {
@@ -271,7 +284,7 @@ table.menu td:first-child {
   color: var(--orange);
   letter-spacing: 1px;
 }
-.tier-label { font-size: clamp(8px, 2vw, 10px); color: #666; letter-spacing: 1px; text-transform: uppercase; }
+.tier-label { font-size: var(--fs-3xs); color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
 /* ── GAIN MENU ────────────────────────── */
 .gain-menu-area { padding: 0 clamp(0.75rem, 4vw, 1.5rem) 1.5rem; }
@@ -285,7 +298,7 @@ table.menu td:first-child {
   border-radius: 20px;
   border: 1px solid #333;
   background: var(--card);
-  color: #888;
+  color: var(--muted);
   cursor: pointer;
   transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
@@ -307,14 +320,14 @@ table.menu td:first-child {
 }
 .footer-item-title {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(9px, 2.5vw, 11px);
+  font-size: var(--fs-3xs);
   font-weight: 600;
   color: var(--orange);
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-bottom: 2px;
 }
-.footer-item-val { font-size: clamp(10px, 2.5vw, 12px); color: #888; }
+.footer-item-val { font-size: clamp(10px, 2.5vw, 12px); color: var(--muted); line-height: 1.3; }
 
 /* ── SCROLL HINT ──────────────────────── */
 .scroll-hint {
@@ -341,14 +354,77 @@ table.menu td:first-child {
   border-radius: 20px;
   border: 1px solid #333;
   background: var(--card);
-  color: #777;
+  color: var(--muted);
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 .plan-tab:hover { border-color: #555; color: #aaa; }
+.plan-tab.active { background: var(--orange); border-color: var(--orange); color: #0a0a0a; font-weight: 700; }
 
+.menu-subnav { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+.menu-subtab {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(11px, 3vw, 13px);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #0d0d0d;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-subtab:hover { border-color: #555; color: #aaa; }
+.menu-subtab.active { background: var(--orange); border-color: var(--orange); color: #0a0a0a; }
+.menu-subpanel:not(:first-child) { margin-top: 0; }
+
+.order-history-list { display: grid; gap: 10px; }
+.order-history-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.order-history-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.order-history-id {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: var(--fs-base);
+}
+.order-history-status {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(255,107,26,0.12);
+  color: var(--orange);
+  border: 1px solid var(--orange);
+}
+.order-history-items { color: var(--muted); font-size: var(--fs-sm); margin-top: 6px; line-height: 1.4; }
+.order-history-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: var(--fs-2xs); color: var(--muted); }
+.order-history-foot strong { color: var(--orange); font-family: 'Barlow Condensed', sans-serif; font-size: var(--fs-md); }
+
+.profile-fields { display: grid; gap: 10px; }
+.profile-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #0d0d0d;
+  border: 1px solid #262626;
+  border-radius: 8px;
+}
+.profile-field-label { color: var(--muted); font-size: var(--fs-2xs); letter-spacing: 1px; text-transform: uppercase; }
+.profile-field-value { color: var(--text); font-size: var(--fs-base); font-weight: 600; text-align: right; }
 
 /* -- TOPBAR ------------------------------------------------------------------ */
 .hidden { display: none !important; }
@@ -368,7 +444,7 @@ table.menu td:first-child {
 }
 .topbar-brand {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
+  font-size: var(--fs-md);
   letter-spacing: 2px;
 }
 .topbar-brand .fit { color: var(--text); }
@@ -380,11 +456,11 @@ table.menu td:first-child {
 }
 .auth-buttons { display: flex; gap: 8px; }
 .auth-btn-sm {
-  border-radius: 7px;
+  border-radius: 8px;
   padding: 7px 14px;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -420,22 +496,22 @@ table.menu td:first-child {
 .order-item-name {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--fs-base);
   letter-spacing: 0.5px;
 }
-.order-item-desc { color: var(--muted); font-size: 12.5px; line-height: 1.4; flex-grow: 1; }
-.order-item-meta { color: #4caf50; font-size: 11.5px; letter-spacing: 0.5px; text-transform: uppercase; }
+.order-item-desc { color: var(--muted); font-size: var(--fs-sm); line-height: 1.4; flex-grow: 1; }
+.order-item-meta { color: #4caf50; font-size: var(--fs-2xs); letter-spacing: 0.5px; text-transform: uppercase; }
 .order-item-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
-.order-item-price { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; color: var(--orange); }
+.order-item-price { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: var(--fs-md); color: var(--orange); }
 .order-btn {
   border: 1px solid var(--orange);
   background: var(--orange);
   color: #0a0a0a;
-  border-radius: 7px;
+  border-radius: 8px;
   padding: 7px 14px;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: var(--fs-2xs);
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -477,7 +553,7 @@ table.menu td:first-child {
   border: 1px solid #333;
   background: #141414;
   color: #aaa;
-  font-size: 18px;
+  font-size: var(--fs-md);
   line-height: 1;
   cursor: pointer;
   display: grid;
@@ -512,7 +588,7 @@ table.menu td:first-child {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 4px;
-  font-size: 12px;
+  font-size: var(--fs-2xs);
   margin-top: 8px;
 }
 .auth-body {
@@ -526,13 +602,13 @@ table.menu td:first-child {
 }
 .auth-tab {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   border: 1px solid #333;
   background: #0d0d0d;
-  color: #888;
+  color: var(--muted);
   border-radius: 8px;
   padding: 10px;
   cursor: pointer;
@@ -559,7 +635,7 @@ table.menu td:first-child {
   border-radius: 8px;
   color: var(--text);
   font-family: 'Barlow', sans-serif;
-  font-size: 14px;
+  font-size: var(--fs-base);
   padding: 10px 11px;
   outline: none;
 }
@@ -574,9 +650,9 @@ table.menu td:first-child {
   background: var(--orange);
   color: #0a0a0a;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
+  font-size: var(--fs-base);
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
 }
@@ -587,15 +663,15 @@ table.menu td:first-child {
 .auth-status {
   min-height: 18px;
   margin-top: 10px;
-  color: #888;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--fs-2xs);
   line-height: 1.4;
 }
 .auth-status.bad { color: #ff7a7a; }
 .auth-status.good { color: #7ed957; }
 .auth-note {
-  color: #666;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--fs-2xs);
   line-height: 1.45;
   margin-top: 10px;
 }
@@ -610,23 +686,38 @@ table.menu td:first-child {
 }
 .session-user {
   color: #aaa;
-  font-size: 12px;
+  font-size: var(--fs-2xs);
 }
 .session-user strong {
   color: var(--orange);
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
+  font-size: var(--fs-md);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+.profile-btn {
+  border: 1px solid #333;
+  background: #141414;
+  color: var(--orange);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.profile-btn:hover { border-color: var(--orange); }
 .logout-btn {
   border: 1px solid #333;
   background: #141414;
   color: #aaa;
-  border-radius: 7px;
+  border-radius: 8px;
   padding: 7px 11px;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
+  font-size: var(--fs-sm);
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -655,7 +746,7 @@ table.menu td:first-child {
       <button class="auth-btn-sm register" type="button" id="open-register-btn">Register</button>
     </div>
     <div class="session-bar hidden" id="session-bar">
-      <div class="session-user" id="session-user"></div>
+      <button class="profile-btn" type="button" id="profile-btn">👤 Profile</button>
       <button class="logout-btn" type="button" id="logout-btn">Logout</button>
     </div>
   </div>
@@ -697,6 +788,21 @@ table.menu td:first-child {
 
       <div class="auth-status" id="auth-status"></div>
       <div class="auth-note">Login or create an account to place an order. Browsing the menu is always open.</div>
+    </div>
+  </div>
+</div>
+
+<div class="auth-modal-overlay hidden" id="profile-modal-overlay">
+  <div class="auth-card">
+    <button class="auth-modal-close" type="button" id="profile-modal-close" aria-label="Close">&times;</button>
+    <div class="auth-brand">
+      <div class="auth-title"><span class="fit">MY</span><span class="fuel"> PROFILE</span></div>
+      <div class="auth-kicker">Your Account Details</div>
+    </div>
+    <div class="auth-body">
+      <div class="profile-fields" id="profile-fields">
+        <div class="order-empty">Loading profile...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -756,14 +862,12 @@ table.menu td:first-child {
 
   <!-- PLAN NAV -->
   <div class="plan-nav">
-    <a class="plan-tab" href="#order-menu">🛒 Order Now</a>
-    <a class="plan-tab" href="#normal-plan">🍽️ Normal Meal</a>
-    <a class="plan-tab" href="#fatloss-plan">🔥 Fat Loss</a>
-    <a class="plan-tab" href="#gainz-plan">💪 Gainz</a>
+    <button class="plan-tab active" type="button" data-tab="order-menu">🛒 Orders</button>
+    <button class="plan-tab" type="button" data-tab="menu-tab">🍽️ Menu</button>
   </div>
 
-  <!-- ═══ ORDER MENU ═══ -->
-  <div class="section-wrap" id="order-menu">
+  <!-- ═══ ORDERS TAB (order now + order history) ═══ -->
+  <div class="section-wrap tab-panel" id="order-menu">
     <div class="section-title">Order Now</div>
     <div class="section-sub">REAL DISHES · REAL PRICES · ONE-CLICK ORDERING</div>
     <div class="diet-card">
@@ -778,108 +882,125 @@ table.menu td:first-child {
         <div class="order-empty">Loading menu...</div>
       </div>
     </div>
+
+    <div class="section-title" style="margin-top: 1.75rem;">My Orders</div>
+    <div class="section-sub">YOUR RECENT ORDER HISTORY</div>
+    <div class="order-history-list" id="order-history-list">
+      <div class="order-empty">Login to view your order history.</div>
+    </div>
   </div>
 
-  <!-- ═══ NORMAL MEAL PLAN ═══ -->
-  <div class="section-wrap" id="normal-plan">
-    <div class="section-title">Normal Meal Plan</div>
-    <div class="section-sub">BALANCED NUTRITION · HOME-STYLE COOKING · EVERYDAY HEALTHY</div>
-    <div class="diet-card">
-      <div class="diet-card-header normal-header">
-        <div class="diet-badge normal-badge">Balanced</div>
-        <div>
-          <div class="diet-title normal-title">Daily Balanced Meals</div>
-          <div class="diet-desc">Wholesome, home-style meals with the right mix of carbs, protein &amp; veggies</div>
+  <!-- ═══ MENU TAB (normal / fat loss / gainz) ═══ -->
+  <div class="section-wrap tab-panel hidden" id="menu-tab">
+    <div class="menu-subnav">
+      <button class="menu-subtab active" type="button" data-submenu="normal-plan">🍽️ Normal Meal</button>
+      <button class="menu-subtab" type="button" data-submenu="fatloss-plan">🔥 Fat Loss</button>
+      <button class="menu-subtab" type="button" data-submenu="gainz-panel">💪 Gainz</button>
+    </div>
+
+    <!-- ═══ NORMAL MEAL PLAN ═══ -->
+    <div class="menu-subpanel" id="normal-plan">
+      <div class="section-title">Normal Meal Plan</div>
+      <div class="section-sub">BALANCED NUTRITION · HOME-STYLE COOKING · EVERYDAY HEALTHY</div>
+      <div class="diet-card">
+        <div class="diet-card-header normal-header">
+          <div class="diet-badge normal-badge">Balanced</div>
+          <div>
+            <div class="diet-title normal-title">Daily Balanced Meals</div>
+            <div class="diet-desc">Wholesome, home-style meals with the right mix of carbs, protein &amp; veggies</div>
+          </div>
+        </div>
+        <div class="diet-table-wrap">
+          <table class="menu">
+            <thead>
+              <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+            </thead>
+            <tbody>
+              <tr class="normal-row"><td>Mon</td><td>2 Eggs, Bread Slice, 1 tbsp Peanut Butter, Milk, Banana</td><td>2 Egg Omelette, Rice, Vegetable Curry, Dal, Salad</td><td>Dal Tadka, Rice/Chapati, Salad</td></tr>
+              <tr class="normal-row"><td>Tue</td><td>50g Oats, Milk, Banana, Dates, Almonds</td><td>Chicken Curry, Rice/Chapati, Dal, Salad</td><td>Paneer Bhurji, Rice/Chapati, Dal, Salad</td></tr>
+              <tr class="normal-row"><td>Wed</td><td>Japanese Egg Sandwich + Protein Shake</td><td>Chicken Biryani + Raita</td><td>Vegetable Curry + Rice/Chapati</td></tr>
+              <tr class="normal-row"><td>Thu</td><td>Poha + Boiled Eggs</td><td>Rajma + Rice/Chapati</td><td>Egg Curry (2 Eggs) + Rice/Chapati</td></tr>
+              <tr class="normal-row"><td>Fri</td><td>Oats + Milk + Banana + Dry Fruits</td><td>Mix Veg Curry + Rice/Chapati + Salad</td><td>Paneer Curry + Rice/Chapati + Salad</td></tr>
+              <tr class="normal-row"><td>Sat</td><td>Egg Omelette + Bread Slice</td><td>Chicken Curry + Rice/Chapati</td><td>Pasta with vegetables</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="scroll-hint">← scroll table to see all →</div>
+      </div>
+    </div>
+
+    <!-- ═══ FAT LOSS PLAN ═══ -->
+    <div class="menu-subpanel hidden" id="fatloss-plan">
+      <div class="section-title">Fat Loss Plan</div>
+      <div class="section-sub">CLEAN EATING · LOW OIL · HIGH SATIETY</div>
+      <div class="diet-card">
+        <div class="diet-card-header loss-header">
+          <div class="diet-badge loss-badge">Weight Loss</div>
+          <div>
+            <div class="diet-title loss-title">Lean &amp; Clean Plan</div>
+            <div class="diet-desc">Low-calorie, nutrient-dense meals crafted to burn fat and keep you energized</div>
+          </div>
+        </div>
+        <div class="diet-table-wrap">
+          <table class="menu">
+            <thead>
+              <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+            </thead>
+            <tbody>
+              <tr class="loss-row"><td>Mon</td><td>4 Egg Whites, Green Salad, Detox Water</td><td>150g Grilled Chicken/Paneer, Brown Rice, Mixed Veg, Salad</td><td>Sprout Salad, Shredded Chicken, Clear Veg Soup</td></tr>
+              <tr class="loss-row"><td>Tue</td><td>Oats + Fruit Salad, Chia Seed Drink</td><td>Chicken Curry (low oil), 2 Multigrain Rotis, Salad</td><td>Hummus, Cucumber &amp; Carrot Sticks, 2 Boiled Eggs</td></tr>
+              <tr class="loss-row"><td>Wed</td><td>Japanese Egg Sandwich, Fresh Juice (no sugar)</td><td>Paneer Tikka, Quinoa, Salad</td><td>Grilled Fish/Chicken, Stir-Fried Vegetables</td></tr>
+              <tr class="loss-row"><td>Thu</td><td>Boiled Quinoa + Egg Dressing, Detox Water</td><td>Rajma, 2 Rotis, Salad</td><td>Mixed Sprouts Chaat, Vegetable Soup</td></tr>
+              <tr class="loss-row"><td>Fri</td><td>Protein Shake, 2 Boiled Eggs</td><td>Chicken Breast, Sweet Potato, Salad</td><td>Paneer Salad Bowl, Clear Soup</td></tr>
+              <tr class="loss-row"><td>Sat</td><td>Oats Porridge, Fruits</td><td>Grilled Chicken/Paneer, Brown Rice, Vegetables</td><td>Egg Bhurji, Salad</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="scroll-hint">← scroll table to see all →</div>
+      </div>
+    </div>
+
+    <!-- ═══ GAINZ PLAN ═══ -->
+    <div class="menu-subpanel hidden" id="gainz-panel">
+      <div class="protein-tiers" id="gainz-plan">
+        <div class="section-title">Gainz Plan</div>
+        <div class="section-sub">BULK SMART · PROTEIN-PACKED · MASS BUILDING</div>
+        <div class="tier-grid">
+          <div class="tier-card active" onclick="showTier('90',this)"><div class="tier-protein">90–100g</div><div class="tier-label">Starter</div></div>
+          <div class="tier-card" onclick="showTier('100',this)"><div class="tier-protein">100–110g</div><div class="tier-label">Builder</div></div>
+          <div class="tier-card" onclick="showTier('110',this)"><div class="tier-protein">110–120g</div><div class="tier-label">Athlete</div></div>
+          <div class="tier-card" onclick="showTier('120',this)"><div class="tier-protein">120–130g</div><div class="tier-label">Beast</div></div>
+          <div class="tier-card" onclick="showTier('130',this)"><div class="tier-protein">130–140g</div><div class="tier-label">Titan</div></div>
         </div>
       </div>
-      <div class="diet-table-wrap">
-        <table class="menu">
-          <thead>
-            <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
-          </thead>
-          <tbody>
-            <tr class="normal-row"><td>Mon</td><td>2 Eggs, Bread Slice, 1 tbsp Peanut Butter, Milk, Banana</td><td>2 Egg Omelette, Rice, Vegetable Curry, Dal, Salad</td><td>Dal Tadka, Rice/Chapati, Salad</td></tr>
-            <tr class="normal-row"><td>Tue</td><td>50g Oats, Milk, Banana, Dates, Almonds</td><td>Chicken Curry, Rice/Chapati, Dal, Salad</td><td>Paneer Bhurji, Rice/Chapati, Dal, Salad</td></tr>
-            <tr class="normal-row"><td>Wed</td><td>Japanese Egg Sandwich + Protein Shake</td><td>Chicken Biryani + Raita</td><td>Vegetable Curry + Rice/Chapati</td></tr>
-            <tr class="normal-row"><td>Thu</td><td>Poha + Boiled Eggs</td><td>Rajma + Rice/Chapati</td><td>Egg Curry (2 Eggs) + Rice/Chapati</td></tr>
-            <tr class="normal-row"><td>Fri</td><td>Oats + Milk + Banana + Dry Fruits</td><td>Mix Veg Curry + Rice/Chapati + Salad</td><td>Paneer Curry + Rice/Chapati + Salad</td></tr>
-            <tr class="normal-row"><td>Sat</td><td>Egg Omelette + Bread Slice</td><td>Chicken Curry + Rice/Chapati</td><td>Pasta with vegetables</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="scroll-hint">← scroll table to see all →</div>
-    </div>
-  </div>
 
-  <!-- ═══ FAT LOSS PLAN ═══ -->
-  <div class="section-wrap" id="fatloss-plan">
-    <div class="section-title">Fat Loss Plan</div>
-    <div class="section-sub">CLEAN EATING · LOW OIL · HIGH SATIETY</div>
-    <div class="diet-card">
-      <div class="diet-card-header loss-header">
-        <div class="diet-badge loss-badge">Weight Loss</div>
-        <div>
-          <div class="diet-title loss-title">Lean &amp; Clean Plan</div>
-          <div class="diet-desc">Low-calorie, nutrient-dense meals crafted to burn fat and keep you energized</div>
+      <div class="gain-menu-area">
+        <div class="tier-selector">
+          <button class="tier-btn active" onclick="selectTierBtn(this,'90')">90–100g</button>
+          <button class="tier-btn" onclick="selectTierBtn(this,'100')">100–110g</button>
+          <button class="tier-btn" onclick="selectTierBtn(this,'110')">110–120g</button>
+          <button class="tier-btn" onclick="selectTierBtn(this,'120')">120–130g</button>
+          <button class="tier-btn" onclick="selectTierBtn(this,'130')">130–140g</button>
+        </div>
+        <div class="diet-card" id="gain-table-card">
+          <div class="diet-card-header gain-header">
+            <div class="diet-badge gain-badge">Mass Gain</div>
+            <div>
+              <div class="diet-title gain-title" id="gain-plan-title">Gainz Plan — 90–100g Protein/Day</div>
+              <div class="diet-desc" id="gain-plan-desc">Starter bulking plan · Ideal for beginners building lean muscle</div>
+            </div>
+          </div>
+          <div class="diet-table-wrap">
+            <table class="menu" id="gain-table">
+              <thead>
+                <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+              </thead>
+              <tbody id="gain-tbody"></tbody>
+            </table>
+          </div>
+          <div class="scroll-hint">← scroll table to see all →</div>
         </div>
       </div>
-      <div class="diet-table-wrap">
-        <table class="menu">
-          <thead>
-            <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
-          </thead>
-          <tbody>
-            <tr class="loss-row"><td>Mon</td><td>4 Egg Whites, Green Salad, Detox Water</td><td>150g Grilled Chicken/Paneer, Brown Rice, Mixed Veg, Salad</td><td>Sprout Salad, Shredded Chicken, Clear Veg Soup</td></tr>
-            <tr class="loss-row"><td>Tue</td><td>Oats + Fruit Salad, Chia Seed Drink</td><td>Chicken Curry (low oil), 2 Multigrain Rotis, Salad</td><td>Hummus, Cucumber &amp; Carrot Sticks, 2 Boiled Eggs</td></tr>
-            <tr class="loss-row"><td>Wed</td><td>Japanese Egg Sandwich, Fresh Juice (no sugar)</td><td>Paneer Tikka, Quinoa, Salad</td><td>Grilled Fish/Chicken, Stir-Fried Vegetables</td></tr>
-            <tr class="loss-row"><td>Thu</td><td>Boiled Quinoa + Egg Dressing, Detox Water</td><td>Rajma, 2 Rotis, Salad</td><td>Mixed Sprouts Chaat, Vegetable Soup</td></tr>
-            <tr class="loss-row"><td>Fri</td><td>Protein Shake, 2 Boiled Eggs</td><td>Chicken Breast, Sweet Potato, Salad</td><td>Paneer Salad Bowl, Clear Soup</td></tr>
-            <tr class="loss-row"><td>Sat</td><td>Oats Porridge, Fruits</td><td>Grilled Chicken/Paneer, Brown Rice, Vegetables</td><td>Egg Bhurji, Salad</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="scroll-hint">← scroll table to see all →</div>
-    </div>
-  </div>
-
-  <!-- ═══ GAINZ PLAN ═══ -->
-  <div class="protein-tiers" id="gainz-plan">
-    <div class="section-title">Gainz Plan</div>
-    <div class="section-sub">BULK SMART · PROTEIN-PACKED · MASS BUILDING</div>
-    <div class="tier-grid">
-      <div class="tier-card active" onclick="showTier('90',this)"><div class="tier-protein">90–100g</div><div class="tier-label">Starter</div></div>
-      <div class="tier-card" onclick="showTier('100',this)"><div class="tier-protein">100–110g</div><div class="tier-label">Builder</div></div>
-      <div class="tier-card" onclick="showTier('110',this)"><div class="tier-protein">110–120g</div><div class="tier-label">Athlete</div></div>
-      <div class="tier-card" onclick="showTier('120',this)"><div class="tier-protein">120–130g</div><div class="tier-label">Beast</div></div>
-      <div class="tier-card" onclick="showTier('130',this)"><div class="tier-protein">130–140g</div><div class="tier-label">Titan</div></div>
-    </div>
-  </div>
-
-  <div class="gain-menu-area">
-    <div class="tier-selector">
-      <button class="tier-btn active" onclick="selectTierBtn(this,'90')">90–100g</button>
-      <button class="tier-btn" onclick="selectTierBtn(this,'100')">100–110g</button>
-      <button class="tier-btn" onclick="selectTierBtn(this,'110')">110–120g</button>
-      <button class="tier-btn" onclick="selectTierBtn(this,'120')">120–130g</button>
-      <button class="tier-btn" onclick="selectTierBtn(this,'130')">130–140g</button>
-    </div>
-    <div class="diet-card" id="gain-table-card">
-      <div class="diet-card-header gain-header">
-        <div class="diet-badge gain-badge">Mass Gain</div>
-        <div>
-          <div class="diet-title gain-title" id="gain-plan-title">Gainz Plan — 90–100g Protein/Day</div>
-          <div class="diet-desc" id="gain-plan-desc">Starter bulking plan · Ideal for beginners building lean muscle</div>
-        </div>
-      </div>
-      <div class="diet-table-wrap">
-        <table class="menu" id="gain-table">
-          <thead>
-            <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
-          </thead>
-          <tbody id="gain-tbody"></tbody>
-        </table>
-      </div>
-      <div class="scroll-hint">← scroll table to see all →</div>
     </div>
   </div>
 
@@ -1018,21 +1139,17 @@ function closeAuthModal() {
 function renderSignedIn(user) {
   authEl("auth-buttons")?.classList.add("hidden");
   authEl("session-bar")?.classList.remove("hidden");
-  const session = authEl("session-user");
-  if (session && user) {
-    const details = [
-      user.age ? user.age + " yrs" : null,
-      user.weight ? user.weight + " kg" : null,
-      user.email || null
-    ].filter(Boolean).join(" · ");
-    session.innerHTML = "<strong>" + String(user.name || "FitFuel User") + "</strong>"
-      + (details ? " · " + details : "");
+  const profileBtn = authEl("profile-btn");
+  if (profileBtn) {
+    profileBtn.textContent = "👤 " + String(user?.name || "Profile");
   }
+  loadOrderHistory();
 }
 
 function renderSignedOut() {
   authEl("session-bar")?.classList.add("hidden");
   authEl("auth-buttons")?.classList.remove("hidden");
+  loadOrderHistory();
 }
 
 function saveSession(authResponse) {
@@ -1114,6 +1231,114 @@ function wireOrderMenu() {
   loadMenu();
 }
 
+/* -- ORDER HISTORY ---------------------------------------------------------- */
+function renderOrderHistory(orders) {
+  const list = authEl("order-history-list");
+  if (!list) return;
+  if (!orders.length) {
+    list.innerHTML = '<div class="order-empty">No orders yet. Place your first order above!</div>';
+    return;
+  }
+  list.innerHTML = orders.map(order => `
+    <div class="order-history-item">
+      <div class="order-history-head">
+        <div class="order-history-id">Order #${order.id}</div>
+        <div class="order-history-status">${order.status}</div>
+      </div>
+      <div class="order-history-items">${order.items.map(item => `${item.quantity}× ${item.name}`).join(", ")}</div>
+      <div class="order-history-foot">
+        <span>${order.createdAt ? new Date(order.createdAt).toLocaleString() : ""}</span>
+        <strong>₹${order.totalAmount}</strong>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadOrderHistory() {
+  const list = authEl("order-history-list");
+  if (!list) return;
+  if (!getToken()) {
+    list.innerHTML = '<div class="order-empty">Login to view your order history.</div>';
+    return;
+  }
+  list.innerHTML = '<div class="order-empty">Loading your orders...</div>';
+  try {
+    const orders = await apiRequest("/orders");
+    renderOrderHistory(orders);
+  } catch {
+    list.innerHTML = '<div class="order-empty">Could not load your orders right now.</div>';
+  }
+}
+
+/* -- PROFILE MODAL ------------------------------------------------------- */
+function renderProfileFields(user) {
+  const fields = authEl("profile-fields");
+  if (!fields) return;
+  const rows = [
+    ["Name", user.name],
+    ["Email", user.email],
+    ["Phone", user.phone],
+    ["Age", user.age ? user.age + " yrs" : null],
+    ["Weight", user.weight ? user.weight + " kg" : null]
+  ];
+  fields.innerHTML = rows.map(([label, value]) => `
+    <div class="profile-field">
+      <span class="profile-field-label">${label}</span>
+      <span class="profile-field-value">${value || "—"}</span>
+    </div>
+  `).join("");
+}
+
+async function openProfileModal() {
+  authEl("profile-modal-overlay")?.classList.remove("hidden");
+  const fields = authEl("profile-fields");
+  if (fields) fields.innerHTML = '<div class="order-empty">Loading profile...</div>';
+  try {
+    const user = await apiRequest("/users/me");
+    renderProfileFields(user);
+  } catch (error) {
+    if (fields) fields.innerHTML = `<div class="order-empty">Could not load profile: ${error.message}</div>`;
+  }
+}
+
+function closeProfileModal() {
+  authEl("profile-modal-overlay")?.classList.add("hidden");
+}
+
+function wireProfile() {
+  authEl("profile-btn")?.addEventListener("click", openProfileModal);
+  authEl("profile-modal-close")?.addEventListener("click", closeProfileModal);
+  authEl("profile-modal-overlay")?.addEventListener("click", event => {
+    if (event.target.id === "profile-modal-overlay") closeProfileModal();
+  });
+}
+
+/* -- TABS ------------------------------------------------------------------ */
+function wireTabs() {
+  document.querySelectorAll(".plan-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".plan-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("hidden", panel.id !== tab.dataset.tab);
+      });
+      if (tab.dataset.tab === "order-menu") {
+        loadOrderHistory();
+      }
+    });
+  });
+
+  document.querySelectorAll(".menu-subtab").forEach(sub => {
+    sub.addEventListener("click", () => {
+      document.querySelectorAll(".menu-subtab").forEach(s => s.classList.remove("active"));
+      sub.classList.add("active");
+      document.querySelectorAll(".menu-subpanel").forEach(panel => {
+        panel.classList.toggle("hidden", panel.id !== sub.dataset.submenu);
+      });
+    });
+  });
+}
+
 function wireAuthGate() {
   authEl("open-login-btn")?.addEventListener("click", () => openAuthModal("login"));
   authEl("open-register-btn")?.addEventListener("click", () => openAuthModal("signup"));
@@ -1168,6 +1393,8 @@ function wireAuthGate() {
 
 wireAuthGate();
 wireOrderMenu();
+wireProfile();
+wireTabs();
 
 </script>
 </body>
