@@ -31,7 +31,7 @@ Full backend documentation: [backend/docs/backend-code-documentation.md](backend
 
 ## Frontend
 
-The frontend entry point is [frontend/index.html](frontend/index.html). It displays login/signup first and reveals the main FitFuel page after successful authentication.
+The frontend entry point is [frontend/index.html](frontend/index.html). The landing page and menu are visible to everyone by default; Login/Register buttons sit in the top-right corner and open a modal. Once signed in, that corner shows the user's details and a Logout button, and the "Order Now" menu becomes orderable (guests get an alert prompting them to login/register).
 
 Serve it locally from the repository root:
 
