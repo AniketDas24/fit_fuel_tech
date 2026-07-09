@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Backend API base URL. Leave blank for local dev (defaults to http://localhost:8080).
-     For a deployed frontend, set content to your backend URL, e.g. https://fitfuel-backend.onrender.com -->
-<meta name="fitfuel-api-base" content="">
+<!-- Backend API base URL used only when this file is served from a non-localhost
+     host (local dev always uses http://localhost:8080 regardless of this value —
+     see the API_BASE script below). Safe to leave set to production permanently. -->
+<meta name="fitfuel-api-base" content="https://fitfuel-backend-kng1.onrender.com">
 <title>FitFuel – Healthy Meals. Real Results.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
@@ -107,6 +108,15 @@ body {
   font-size: clamp(11px, 3.5vw, 14px);
   font-weight: 700;
   letter-spacing: 2px;
+}
+.delivery-radius-note {
+  text-align: center;
+  padding: 7px 1rem;
+  background: #141414;
+  color: var(--muted);
+  font-size: clamp(10px, 2.8vw, 12px);
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
 }
 
 /* ── SERVICES STRIP ───────────────────── */
@@ -434,6 +444,23 @@ table.menu td:first-child {
   max-width: min(90vw, 420px);
   text-align: center;
 }
+
+.whatsapp-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 350;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: transform 0.15s;
+}
+.whatsapp-fab:hover { transform: scale(1.08); }
 
 /* -- ADMIN ------------------------------------------------------------------ */
 .admin-subnav { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
@@ -898,6 +925,12 @@ table.menu td:first-child {
 
 <div class="toast hidden" id="toast"></div>
 
+<a class="whatsapp-fab" href="https://wa.me/916362539454" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp" title="Chat with us on WhatsApp">
+  <svg viewBox="0 0 32 32" width="28" height="28" fill="currentColor" aria-hidden="true">
+    <path d="M16.01 3C9.38 3 4 8.38 4 15.01c0 2.39.63 4.63 1.72 6.57L4 29l7.62-1.66a11.94 11.94 0 0 0 4.39.83h.01c6.63 0 12.01-5.38 12.01-12.01C28.03 8.38 22.65 3 16.01 3zm0 21.87h-.01a9.9 9.9 0 0 1-5.05-1.38l-.36-.21-4.52.98.96-4.41-.24-.37a9.86 9.86 0 0 1-1.52-5.27C5.27 9.5 10.13 4.87 16.02 4.87a9.86 9.86 0 0 1 9.94 9.87 9.9 9.9 0 0 1-9.95 10.13zm5.44-7.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.53.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.87 1.22 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35z"/>
+  </svg>
+</a>
+
 
 <div class="ff-wrap" id="main-app">
 
@@ -916,6 +949,7 @@ table.menu td:first-child {
   <div class="contact-strip">
     🔥 Fresh Tiffin Delivery &middot; Mon – Sat &middot; Customized to YOUR goals
   </div>
+  <div class="delivery-radius-note">📍 We currently deliver within 5 km of our kitchen</div>
 
   <!-- SERVICES STRIP -->
   <div class="services-strip">
@@ -1218,7 +1252,13 @@ function selectTierBtn(btn, key) {
 renderTier("90");
 
 
-const API_BASE = (document.querySelector('meta[name="fitfuel-api-base"]')?.content || "").trim() || "http://localhost:8080";
+// Local dev (run-local.sh serves this same file on localhost) always talks to the
+// local backend, regardless of the meta tag below — the meta tag only takes effect
+// once this file is deployed to a real host (e.g. Netlify), so it's safe to leave
+// it pointed at production permanently without breaking local testing.
+const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+  ? "http://localhost:8080"
+  : ((document.querySelector('meta[name="fitfuel-api-base"]')?.content || "").trim() || "http://localhost:8080");
 const AUTH_TOKEN_KEY = "fitfuelToken";
 const AUTH_USER_KEY = "fitfuelUser";
 
@@ -1651,6 +1691,7 @@ function renderAdminMenu(items) {
       <div class="admin-row-sub">${item.description || ""}</div>
       <div class="admin-row-actions">
         <button class="auth-btn secondary admin-edit-menu-btn" type="button" data-item='${JSON.stringify(item).replace(/'/g, "&#39;")}'>Edit</button>
+        <button class="auth-btn secondary admin-delete-menu-btn" type="button" data-id="${item.id}" data-name="${item.name.replace(/"/g, "&quot;")}" style="border-color:#ff7a7a; color:#ff7a7a;">Delete</button>
       </div>
     </div>
   `).join("");
@@ -1727,11 +1768,28 @@ function wireAdminMenu() {
 
   authEl("admin-menu-cancel-edit")?.addEventListener("click", resetAdminMenuForm);
 
-  authEl("admin-menu-list")?.addEventListener("click", event => {
-    const button = event.target.closest(".admin-edit-menu-btn");
-    if (!button) return;
-    fillAdminMenuForm(JSON.parse(button.dataset.item));
-    form?.scrollIntoView({ behavior: "smooth", block: "center" });
+  authEl("admin-menu-list")?.addEventListener("click", async event => {
+    const editButton = event.target.closest(".admin-edit-menu-btn");
+    if (editButton) {
+      fillAdminMenuForm(JSON.parse(editButton.dataset.item));
+      form?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    const deleteButton = event.target.closest(".admin-delete-menu-btn");
+    if (deleteButton) {
+      const id = deleteButton.dataset.id;
+      const name = deleteButton.dataset.name;
+      if (!confirm(`Delete "${name}" permanently? This cannot be undone.`)) return;
+      deleteButton.disabled = true;
+      try {
+        await apiRequest(`/menu/${id}`, { method: "DELETE" });
+        showToast(`"${name}" deleted.`);
+        loadAdminMenu();
+      } catch (error) {
+        showToast("Could not delete: " + error.message);
+        deleteButton.disabled = false;
+      }
+    }
   });
 }
 
@@ -1812,6 +1870,7 @@ function wireTabs() {
         panel.classList.toggle("hidden", panel.id !== tab.dataset.tab);
       });
       if (tab.dataset.tab === "order-menu") {
+        loadMenu();
         loadOrderHistory();
       }
       if (tab.dataset.tab === "admin-tab") {

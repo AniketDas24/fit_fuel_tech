@@ -1,6 +1,9 @@
 package com.fitfuel.menu;
 
 import com.fitfuel.common.NotFoundException;
+import com.fitfuel.order.CartItemRepository;
+import com.fitfuel.order.OrderItemRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +15,14 @@ import java.util.List;
 public class MenuController {
 
     private final FoodItemRepository foodItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final CartItemRepository cartItemRepository;
 
-    public MenuController(FoodItemRepository foodItemRepository) {
+    public MenuController(FoodItemRepository foodItemRepository, OrderItemRepository orderItemRepository,
+                          CartItemRepository cartItemRepository) {
         this.foodItemRepository = foodItemRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.cartItemRepository = cartItemRepository;
     }
 
     @GetMapping
@@ -52,6 +60,20 @@ public class MenuController {
                 .orElseThrow(() -> new NotFoundException("Food item not found"));
         apply(item, request);
         return FoodItemResponse.from(foodItemRepository.save(item));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    void delete(@PathVariable Long id) {
+        FoodItem item = foodItemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Food item not found"));
+        if (orderItemRepository.existsByFoodItem_Id(id)) {
+            throw new IllegalArgumentException(
+                    "Cannot delete \"" + item.getName() + "\" — it appears in existing orders. Deactivate it instead.");
+        }
+        cartItemRepository.deleteByFoodItem_Id(id); // safe to drop: carts are ephemeral, not historical records
+        foodItemRepository.delete(item);
     }
 
     private void apply(FoodItem item, FoodItemRequest request) {
