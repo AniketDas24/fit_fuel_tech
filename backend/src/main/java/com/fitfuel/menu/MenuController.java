@@ -31,6 +31,12 @@ public class MenuController {
                 .orElseThrow(() -> new NotFoundException("Food item not found")));
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    List<FoodItemResponse> allIncludingInactive() {
+        return foodItemRepository.findAllByOrderByCategoryAscNameAsc().stream().map(FoodItemResponse::from).toList();
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     FoodItemResponse create(@Valid @RequestBody FoodItemRequest request) {

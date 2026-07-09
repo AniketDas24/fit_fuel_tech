@@ -28,6 +28,9 @@ record AuthResponse(String token, UserProfileResponse user) {
 record UpdateProfileRequest(String name, String phone, Integer age, Double weight) {
 }
 
+record ChangePasswordRequest(@NotBlank String currentPassword, @Size(min = 8) String newPassword) {
+}
+
 record UserProfileResponse(Long id, String name, String email, String phone, Integer age, Double weight, Role role) {
     static UserProfileResponse from(AppUser user) {
         return new UserProfileResponse(

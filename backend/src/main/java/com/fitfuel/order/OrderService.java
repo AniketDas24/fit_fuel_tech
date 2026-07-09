@@ -4,27 +4,36 @@ import com.fitfuel.common.NotFoundException;
 import com.fitfuel.menu.FoodItem;
 import com.fitfuel.menu.FoodItemRepository;
 import com.fitfuel.menu.MenuType;
+import com.fitfuel.notification.NotificationService;
 import com.fitfuel.user.AppUser;
 import com.fitfuel.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class OrderService {
+
+    private static final List<OrderStatus> FORWARD_FLOW = List.of(
+            OrderStatus.CREATED, OrderStatus.CONFIRMED, OrderStatus.PREPARING,
+            OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED);
 
     private final UserRepository userRepository;
     private final FoodItemRepository foodItemRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
+    private final NotificationService notificationService;
 
     public OrderService(UserRepository userRepository, FoodItemRepository foodItemRepository,
-                        CartRepository cartRepository, OrderRepository orderRepository) {
+                        CartRepository cartRepository, OrderRepository orderRepository,
+                        NotificationService notificationService) {
         this.userRepository = userRepository;
         this.foodItemRepository = foodItemRepository;
         this.cartRepository = cartRepository;
         this.orderRepository = orderRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -92,6 +101,57 @@ public class OrderService {
                 .stream()
                 .map(OrderResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public List<AdminOrderResponse> adminOrders() {
+        return orderRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(AdminOrderResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public AdminOrderResponse transitionStatus(Long orderId, OrderStatus newStatus) {
+        CustomerOrder order = findOrThrow(orderId);
+        OrderStatus current = order.getStatus();
+        if (current == newStatus) {
+            return AdminOrderResponse.from(order);
+        }
+        if (current == OrderStatus.DELIVERED || current == OrderStatus.CANCELLED) {
+            throw new IllegalArgumentException("Order is already " + current + " and cannot be changed");
+        }
+        if (newStatus != OrderStatus.CANCELLED) {
+            int fromIndex = FORWARD_FLOW.indexOf(current);
+            int toIndex = FORWARD_FLOW.indexOf(newStatus);
+            if (toIndex < fromIndex) {
+                throw new IllegalArgumentException(
+                        "Cannot move order status backwards from " + current + " to " + newStatus);
+            }
+        }
+        order.setStatus(newStatus);
+        CustomerOrder saved = orderRepository.save(order);
+        notificationService.notifyOrderStatusChanged(saved);
+        return AdminOrderResponse.from(saved);
+    }
+
+    @Transactional
+    public void confirmPayment(Long orderId) {
+        CustomerOrder order = findOrThrow(orderId);
+        order.setPaymentStatus(PaymentStatus.PAID);
+        orderRepository.save(order);
+        transitionStatus(orderId, OrderStatus.CONFIRMED);
+    }
+
+    @Transactional
+    public void markPaymentFailed(Long orderId) {
+        CustomerOrder order = findOrThrow(orderId);
+        order.setPaymentStatus(PaymentStatus.FAILED);
+        orderRepository.save(order);
+    }
+
+    CustomerOrder findOrThrow(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
     private AppUser user(String email) {

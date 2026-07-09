@@ -43,3 +43,28 @@ record OrderResponse(Long id, OrderStatus status, BigDecimal totalAmount, Paymen
         );
     }
 }
+
+record UpdateOrderStatusRequest(@NotNull OrderStatus status) {
+}
+
+record AdminOrderResponse(Long id, Long userId, String userName, String userEmail, String userPhone,
+                          OrderStatus status, PaymentStatus paymentStatus, BigDecimal totalAmount,
+                          Instant createdAt, List<OrderItemResponse> items) {
+    static AdminOrderResponse from(CustomerOrder order) {
+        return new AdminOrderResponse(
+                order.getId(),
+                order.getUser().getId(),
+                order.getUser().getName(),
+                order.getUser().getEmail(),
+                order.getUser().getPhone(),
+                order.getStatus(),
+                order.getPaymentStatus(),
+                order.getTotalAmount(),
+                order.getCreatedAt(),
+                order.getItems().stream()
+                        .map(item -> new OrderItemResponse(item.getFoodItem().getId(), item.getFoodItem().getName(),
+                                item.getQuantity(), item.getPrice()))
+                        .toList()
+        );
+    }
+}

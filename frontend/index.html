@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Backend API base URL. Leave blank for local dev (defaults to http://localhost:8080).
+     For a deployed frontend, set content to your backend URL, e.g. https://fitfuel-backend.onrender.com -->
+<meta name="fitfuel-api-base" content="">
 <title>FitFuel – Healthy Meals. Real Results.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -411,6 +415,91 @@ table.menu td:first-child {
 .order-history-items { color: var(--muted); font-size: var(--fs-sm); margin-top: 6px; line-height: 1.4; }
 .order-history-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: var(--fs-2xs); color: var(--muted); }
 .order-history-foot strong { color: var(--orange); font-family: 'Barlow Condensed', sans-serif; font-size: var(--fs-md); }
+.order-history-actions { margin-top: 10px; }
+
+/* -- TOAST ---------------------------------------------------------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 400;
+  background: rgba(20,20,20,0.97);
+  border: 1px solid var(--orange);
+  box-shadow: 0 0 24px var(--orange-glow);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  padding: 12px 18px;
+  border-radius: 10px;
+  max-width: min(90vw, 420px);
+  text-align: center;
+}
+
+/* -- ADMIN ------------------------------------------------------------------ */
+.admin-subnav { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+.admin-subtab {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(11px, 3vw, 13px);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #0d0d0d;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-subtab:hover { border-color: #555; color: #aaa; }
+.admin-subtab.active { background: var(--orange); border-color: var(--orange); color: #0a0a0a; }
+.admin-subpanel:not(:first-child) { margin-top: 0; }
+
+.admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.admin-stat-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.admin-stat-value { font-family: 'Bebas Neue', sans-serif; font-size: clamp(24px, 6vw, 32px); color: var(--orange); }
+.admin-stat-label { color: var(--muted); font-size: var(--fs-3xs); letter-spacing: 1px; text-transform: uppercase; }
+
+.admin-list { display: grid; gap: 10px; margin-bottom: 1.25rem; }
+.admin-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.admin-row-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.admin-row-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: var(--fs-base); }
+.admin-row-sub { color: var(--muted); font-size: var(--fs-2xs); margin-top: 4px; line-height: 1.4; }
+.admin-row-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.admin-select {
+  background: #0b0b0b;
+  border: 1px solid #303030;
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: var(--fs-sm);
+  padding: 7px 9px;
+}
+.admin-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 9px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 1.25rem;
+}
+.admin-form-full { grid-column: 1 / -1; }
+.admin-form label { display: grid; gap: 4px; font-size: var(--fs-2xs); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.admin-checkbox-row { display: flex; align-items: center; gap: 8px; }
+.admin-checkbox-row input { width: 16px; height: 16px; }
 
 .profile-fields { display: grid; gap: 10px; }
 .profile-field {
@@ -807,6 +896,8 @@ table.menu td:first-child {
   </div>
 </div>
 
+<div class="toast hidden" id="toast"></div>
+
 
 <div class="ff-wrap" id="main-app">
 
@@ -864,6 +955,7 @@ table.menu td:first-child {
   <div class="plan-nav">
     <button class="plan-tab active" type="button" data-tab="order-menu">🛒 Orders</button>
     <button class="plan-tab" type="button" data-tab="menu-tab">🍽️ Menu</button>
+    <button class="plan-tab hidden" type="button" data-tab="admin-tab" id="admin-tab-btn">🛠️ Admin</button>
   </div>
 
   <!-- ═══ ORDERS TAB (order now + order history) ═══ -->
@@ -1004,6 +1096,71 @@ table.menu td:first-child {
     </div>
   </div>
 
+  <!-- ═══ ADMIN TAB ═══ -->
+  <div class="section-wrap tab-panel hidden" id="admin-tab">
+    <div class="admin-subnav">
+      <button class="admin-subtab active" type="button" data-adminsub="admin-orders">📦 Orders</button>
+      <button class="admin-subtab" type="button" data-adminsub="admin-menu">🍽️ Menu</button>
+      <button class="admin-subtab" type="button" data-adminsub="admin-stats">📊 Stats</button>
+      <button class="admin-subtab" type="button" data-adminsub="admin-feedback">💬 Feedback</button>
+    </div>
+
+    <div class="admin-subpanel" id="admin-orders">
+      <div class="section-title">All Orders</div>
+      <div class="section-sub">MANAGE ORDER STATUS</div>
+      <div class="admin-list" id="admin-orders-list">
+        <div class="order-empty">Loading orders...</div>
+      </div>
+    </div>
+
+    <div class="admin-subpanel hidden" id="admin-menu">
+      <div class="section-title">Menu Management</div>
+      <div class="section-sub">ADD OR EDIT MENU ITEMS</div>
+      <form class="admin-form" id="admin-menu-form">
+        <input type="hidden" name="id" value="">
+        <label>Name<input class="auth-input" name="name" required></label>
+        <label>Category<input class="auth-input" name="category" required></label>
+        <label>Menu Type
+          <select class="admin-select" name="menuType" required>
+            <option value="REGULAR_MENU">Regular Menu</option>
+            <option value="MESS_MENU">Mess Menu</option>
+          </select>
+        </label>
+        <label>Price (₹)<input class="auth-input" name="price" type="number" step="0.01" min="0" required></label>
+        <label>Protein (g)<input class="auth-input" name="protein" type="number" min="0"></label>
+        <label>Calories<input class="auth-input" name="calories" type="number" min="0"></label>
+        <label class="admin-form-full">Description<input class="auth-input" name="description"></label>
+        <div class="admin-checkbox-row admin-form-full">
+          <input type="checkbox" name="active" id="admin-menu-active" checked>
+          <label for="admin-menu-active" style="text-transform:none;letter-spacing:0;color:var(--text);font-size:var(--fs-sm);">Active (visible to customers)</label>
+        </div>
+        <div class="admin-form-full" style="display:flex; gap:8px;">
+          <button class="auth-btn" type="submit" id="admin-menu-submit">Add Item</button>
+          <button class="auth-btn secondary" type="button" id="admin-menu-cancel-edit" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+      <div class="admin-list" id="admin-menu-list">
+        <div class="order-empty">Loading menu items...</div>
+      </div>
+    </div>
+
+    <div class="admin-subpanel hidden" id="admin-stats">
+      <div class="section-title">Dashboard</div>
+      <div class="section-sub">TODAY AT A GLANCE</div>
+      <div class="admin-stats-grid" id="admin-stats-grid">
+        <div class="order-empty">Loading stats...</div>
+      </div>
+    </div>
+
+    <div class="admin-subpanel hidden" id="admin-feedback">
+      <div class="section-title">Customer Feedback</div>
+      <div class="section-sub">RATINGS &amp; COMMENTS</div>
+      <div class="admin-list" id="admin-feedback-list">
+        <div class="order-empty">Loading feedback...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <div class="footer-strip">
     <div>
@@ -1061,12 +1218,22 @@ function selectTierBtn(btn, key) {
 renderTier("90");
 
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = (document.querySelector('meta[name="fitfuel-api-base"]')?.content || "").trim() || "http://localhost:8080";
 const AUTH_TOKEN_KEY = "fitfuelToken";
 const AUTH_USER_KEY = "fitfuelUser";
 
 function authEl(id) {
   return document.getElementById(id);
+}
+
+let toastTimer;
+function showToast(message) {
+  const el = authEl("toast");
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove("hidden");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add("hidden"), 4000);
 }
 
 function setAuthStatus(message, type) {
@@ -1135,6 +1302,30 @@ function closeAuthModal() {
   authEl("auth-modal-overlay")?.classList.add("hidden");
 }
 
+/* -- NOTIFICATIONS (SSE) --------------------------------------------------- */
+let notificationSource = null;
+
+function connectNotifications() {
+  disconnectNotifications();
+  const token = getToken();
+  if (!token || typeof EventSource === "undefined") return;
+  notificationSource = new EventSource(API_BASE + "/orders/notifications?token=" + encodeURIComponent(token));
+  notificationSource.addEventListener("order-status", event => {
+    try {
+      const data = JSON.parse(event.data);
+      showToast(`Order #${data.orderId} is now ${String(data.status).replace(/_/g, " ")}`);
+    } catch {
+      // ignore malformed events
+    }
+    loadOrderHistory();
+  });
+}
+
+function disconnectNotifications() {
+  notificationSource?.close();
+  notificationSource = null;
+}
+
 /* -- SESSION / TOPBAR ---------------------------------------------------- */
 function renderSignedIn(user) {
   authEl("auth-buttons")?.classList.add("hidden");
@@ -1143,13 +1334,24 @@ function renderSignedIn(user) {
   if (profileBtn) {
     profileBtn.textContent = "👤 " + String(user?.name || "Profile");
   }
+  authEl("admin-tab-btn")?.classList.toggle("hidden", user?.role !== "ADMIN");
   loadOrderHistory();
+  connectNotifications();
 }
 
 function renderSignedOut() {
   authEl("session-bar")?.classList.add("hidden");
   authEl("auth-buttons")?.classList.remove("hidden");
+  authEl("admin-tab-btn")?.classList.remove("active");
+  authEl("admin-tab-btn")?.classList.add("hidden");
+  const adminPanel = authEl("admin-tab");
+  if (adminPanel && !adminPanel.classList.contains("hidden")) {
+    adminPanel.classList.add("hidden");
+    authEl("order-menu")?.classList.remove("hidden");
+    document.querySelector('.plan-tab[data-tab="order-menu"]')?.classList.add("active");
+  }
   loadOrderHistory();
+  disconnectNotifications();
 }
 
 function saveSession(authResponse) {
@@ -1198,9 +1400,55 @@ async function loadMenu() {
   }
 }
 
+/* -- PAYMENT (RAZORPAY) ----------------------------------------------------- */
+function openRazorpayCheckout(rp) {
+  const rzp = new Razorpay({
+    key: rp.keyId,
+    amount: Math.round(rp.amount * 100),
+    currency: rp.currency,
+    name: "FitFuel",
+    description: "Order #" + rp.orderId,
+    order_id: rp.razorpayOrderId,
+    handler: async (response) => {
+      try {
+        await apiRequest("/payments/verify", {
+          method: "POST",
+          body: JSON.stringify({
+            paymentId: rp.paymentId,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature
+          })
+        });
+        showToast(`Payment successful! Order #${rp.orderId} confirmed.`);
+      } catch (error) {
+        showToast("Payment verification failed: " + error.message);
+      } finally {
+        loadOrderHistory();
+      }
+    },
+    modal: {
+      ondismiss: () => showToast("Payment not completed. You can retry from My Orders.")
+    }
+  });
+  rzp.open();
+}
+
+async function startPayment(orderId) {
+  try {
+    const rp = await apiRequest("/payments/razorpay-order", {
+      method: "POST",
+      body: JSON.stringify({ orderId })
+    });
+    openRazorpayCheckout(rp);
+  } catch (error) {
+    showToast("Could not start payment: " + error.message);
+  }
+}
+
 async function placeOrder(foodItemId, name, button) {
   if (!getToken()) {
-    alert("Please login or register to place an order.");
+    showToast("Please login or register to place an order.");
     openAuthModal("login");
     return;
   }
@@ -1213,9 +1461,11 @@ async function placeOrder(foodItemId, name, button) {
       body: JSON.stringify({ foodItemId, quantity: 1 })
     });
     const order = await apiRequest("/orders/checkout", { method: "POST", body: JSON.stringify({}) });
-    alert(`Order placed! ${name} · Order #${order.id} · Total ₹${order.totalAmount}`);
+    showToast(`Order #${order.id} created — complete payment to confirm.`);
+    loadOrderHistory();
+    await startPayment(order.id);
   } catch (error) {
-    alert("Could not place the order: " + error.message);
+    showToast("Could not place the order: " + error.message);
   } finally {
     button.disabled = false;
     button.textContent = originalText;
@@ -1250,8 +1500,20 @@ function renderOrderHistory(orders) {
         <span>${order.createdAt ? new Date(order.createdAt).toLocaleString() : ""}</span>
         <strong>₹${order.totalAmount}</strong>
       </div>
+      ${order.paymentStatus === "PENDING" ? `
+      <div class="order-history-actions">
+        <button class="order-btn pay-now-btn" type="button" data-order-id="${order.id}">Pay Now</button>
+      </div>` : ""}
     </div>
   `).join("");
+}
+
+function wireOrderHistory() {
+  authEl("order-history-list")?.addEventListener("click", event => {
+    const button = event.target.closest(".pay-now-btn");
+    if (!button) return;
+    startPayment(Number(button.dataset.orderId));
+  });
 }
 
 async function loadOrderHistory() {
@@ -1313,6 +1575,233 @@ function wireProfile() {
   });
 }
 
+/* -- ADMIN: ORDERS --------------------------------------------------------- */
+const ADMIN_ORDER_STATUSES = ["CREATED", "CONFIRMED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
+
+function renderAdminOrders(orders) {
+  const list = authEl("admin-orders-list");
+  if (!list) return;
+  if (!orders.length) {
+    list.innerHTML = '<div class="order-empty">No orders yet.</div>';
+    return;
+  }
+  list.innerHTML = orders.map(order => `
+    <div class="admin-row">
+      <div class="admin-row-head">
+        <div class="admin-row-title">Order #${order.id} · ${order.userName}</div>
+        <div class="order-history-status">${order.paymentStatus}</div>
+      </div>
+      <div class="admin-row-sub">${order.userEmail} · ${order.userPhone}</div>
+      <div class="admin-row-sub">${order.items.map(item => `${item.quantity}× ${item.name}`).join(", ")}</div>
+      <div class="admin-row-sub">${order.createdAt ? new Date(order.createdAt).toLocaleString() : ""} · ₹${order.totalAmount}</div>
+      <div class="admin-row-actions">
+        <select class="admin-select admin-order-status" data-order-id="${order.id}">
+          ${ADMIN_ORDER_STATUSES.map(s => `<option value="${s}" ${s === order.status ? "selected" : ""}>${s.replace(/_/g, " ")}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadAdminOrders() {
+  const list = authEl("admin-orders-list");
+  if (!list) return;
+  list.innerHTML = '<div class="order-empty">Loading orders...</div>';
+  try {
+    const orders = await apiRequest("/orders/all");
+    renderAdminOrders(orders);
+  } catch (error) {
+    list.innerHTML = `<div class="order-empty">Could not load orders: ${error.message}</div>`;
+  }
+}
+
+function wireAdminOrders() {
+  authEl("admin-orders-list")?.addEventListener("change", async event => {
+    const select = event.target.closest(".admin-order-status");
+    if (!select) return;
+    const orderId = Number(select.dataset.orderId);
+    const status = select.value;
+    select.disabled = true;
+    try {
+      await apiRequest(`/orders/${orderId}/status`, { method: "PUT", body: JSON.stringify({ status }) });
+      showToast(`Order #${orderId} updated to ${status.replace(/_/g, " ")}`);
+    } catch (error) {
+      showToast("Could not update order status: " + error.message);
+    } finally {
+      loadAdminOrders();
+    }
+  });
+}
+
+/* -- ADMIN: MENU ------------------------------------------------------------ */
+function renderAdminMenu(items) {
+  const list = authEl("admin-menu-list");
+  if (!list) return;
+  if (!items.length) {
+    list.innerHTML = '<div class="order-empty">No menu items yet.</div>';
+    return;
+  }
+  list.innerHTML = items.map(item => `
+    <div class="admin-row">
+      <div class="admin-row-head">
+        <div class="admin-row-title">${item.name}${item.active ? "" : " (inactive)"}</div>
+        <div class="order-history-status">₹${item.price}</div>
+      </div>
+      <div class="admin-row-sub">${item.category} · ${String(item.menuType).replace(/_/g, " ")} · ${[item.protein ? item.protein + "g protein" : null, item.calories ? item.calories + " kcal" : null].filter(Boolean).join(" · ")}</div>
+      <div class="admin-row-sub">${item.description || ""}</div>
+      <div class="admin-row-actions">
+        <button class="auth-btn secondary admin-edit-menu-btn" type="button" data-item='${JSON.stringify(item).replace(/'/g, "&#39;")}'>Edit</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadAdminMenu() {
+  const list = authEl("admin-menu-list");
+  if (!list) return;
+  list.innerHTML = '<div class="order-empty">Loading menu items...</div>';
+  try {
+    const items = await apiRequest("/menu/all");
+    renderAdminMenu(items);
+  } catch (error) {
+    list.innerHTML = `<div class="order-empty">Could not load menu items: ${error.message}</div>`;
+  }
+}
+
+function resetAdminMenuForm() {
+  const form = authEl("admin-menu-form");
+  if (!form) return;
+  form.reset();
+  form.elements.id.value = "";
+  const activeBox = authEl("admin-menu-active");
+  if (activeBox) activeBox.checked = true;
+  authEl("admin-menu-submit").textContent = "Add Item";
+  authEl("admin-menu-cancel-edit").style.display = "none";
+}
+
+function fillAdminMenuForm(item) {
+  const form = authEl("admin-menu-form");
+  if (!form) return;
+  form.elements.id.value = item.id;
+  form.elements.name.value = item.name || "";
+  form.elements.category.value = item.category || "";
+  form.elements.menuType.value = item.menuType;
+  form.elements.price.value = item.price;
+  form.elements.protein.value = item.protein ?? "";
+  form.elements.calories.value = item.calories ?? "";
+  form.elements.description.value = item.description || "";
+  authEl("admin-menu-active").checked = !!item.active;
+  authEl("admin-menu-submit").textContent = "Save Changes";
+  authEl("admin-menu-cancel-edit").style.display = "inline-block";
+}
+
+function wireAdminMenu() {
+  const form = authEl("admin-menu-form");
+  form?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const id = form.elements.id.value;
+    const payload = {
+      name: form.elements.name.value,
+      category: form.elements.category.value,
+      menuType: form.elements.menuType.value,
+      price: Number(form.elements.price.value),
+      protein: form.elements.protein.value ? Number(form.elements.protein.value) : null,
+      calories: form.elements.calories.value ? Number(form.elements.calories.value) : null,
+      description: form.elements.description.value || null,
+      active: authEl("admin-menu-active").checked
+    };
+    try {
+      if (id) {
+        await apiRequest(`/menu/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+        showToast("Menu item updated.");
+      } else {
+        await apiRequest("/menu", { method: "POST", body: JSON.stringify(payload) });
+        showToast("Menu item added.");
+      }
+      resetAdminMenuForm();
+      loadAdminMenu();
+    } catch (error) {
+      showToast("Could not save menu item: " + error.message);
+    }
+  });
+
+  authEl("admin-menu-cancel-edit")?.addEventListener("click", resetAdminMenuForm);
+
+  authEl("admin-menu-list")?.addEventListener("click", event => {
+    const button = event.target.closest(".admin-edit-menu-btn");
+    if (!button) return;
+    fillAdminMenuForm(JSON.parse(button.dataset.item));
+    form?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+}
+
+/* -- ADMIN: STATS ------------------------------------------------------------ */
+async function loadAdminStats() {
+  const grid = authEl("admin-stats-grid");
+  if (!grid) return;
+  grid.innerHTML = '<div class="order-empty">Loading stats...</div>';
+  try {
+    const stats = await apiRequest("/admin/stats");
+    grid.innerHTML = `
+      <div class="admin-stat-tile"><div class="admin-stat-value">${stats.todayOrderCount}</div><div class="admin-stat-label">Orders Today</div></div>
+      <div class="admin-stat-tile"><div class="admin-stat-value">₹${stats.todayRevenue}</div><div class="admin-stat-label">Revenue Today</div></div>
+      <div class="admin-stat-tile"><div class="admin-stat-value">${stats.pendingOrderCount}</div><div class="admin-stat-label">Orders In Flight</div></div>
+      <div class="admin-stat-tile"><div class="admin-stat-value">${stats.totalCustomers}</div><div class="admin-stat-label">Total Customers</div></div>
+    `;
+  } catch (error) {
+    grid.innerHTML = `<div class="order-empty">Could not load stats: ${error.message}</div>`;
+  }
+}
+
+/* -- ADMIN: FEEDBACK ---------------------------------------------------------- */
+async function loadAdminFeedback() {
+  const list = authEl("admin-feedback-list");
+  if (!list) return;
+  list.innerHTML = '<div class="order-empty">Loading feedback...</div>';
+  try {
+    const feedback = await apiRequest("/feedbacks/all");
+    if (!feedback.length) {
+      list.innerHTML = '<div class="order-empty">No feedback yet.</div>';
+      return;
+    }
+    list.innerHTML = feedback.map(item => `
+      <div class="admin-row">
+        <div class="admin-row-head">
+          <div class="admin-row-title">${item.userName} · Order #${item.orderId}</div>
+          <div class="order-history-status">${"★".repeat(item.rating)}${"☆".repeat(5 - item.rating)}</div>
+        </div>
+        <div class="admin-row-sub">${item.comment || ""}</div>
+        <div class="admin-row-sub">${item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</div>
+      </div>
+    `).join("");
+  } catch (error) {
+    list.innerHTML = `<div class="order-empty">Could not load feedback: ${error.message}</div>`;
+  }
+}
+
+/* -- ADMIN: WIRING ------------------------------------------------------------ */
+function wireAdminSubtabs() {
+  document.querySelectorAll(".admin-subtab").forEach(sub => {
+    sub.addEventListener("click", () => {
+      document.querySelectorAll(".admin-subtab").forEach(s => s.classList.remove("active"));
+      sub.classList.add("active");
+      document.querySelectorAll(".admin-subpanel").forEach(panel => {
+        panel.classList.toggle("hidden", panel.id !== sub.dataset.adminsub);
+      });
+      if (sub.dataset.adminsub === "admin-orders") loadAdminOrders();
+      if (sub.dataset.adminsub === "admin-menu") loadAdminMenu();
+      if (sub.dataset.adminsub === "admin-stats") loadAdminStats();
+      if (sub.dataset.adminsub === "admin-feedback") loadAdminFeedback();
+    });
+  });
+}
+
+function wireAdmin() {
+  wireAdminSubtabs();
+  wireAdminOrders();
+  wireAdminMenu();
+}
+
 /* -- TABS ------------------------------------------------------------------ */
 function wireTabs() {
   document.querySelectorAll(".plan-tab").forEach(tab => {
@@ -1324,6 +1813,9 @@ function wireTabs() {
       });
       if (tab.dataset.tab === "order-menu") {
         loadOrderHistory();
+      }
+      if (tab.dataset.tab === "admin-tab") {
+        loadAdminOrders();
       }
     });
   });
@@ -1393,7 +1885,9 @@ function wireAuthGate() {
 
 wireAuthGate();
 wireOrderMenu();
+wireOrderHistory();
 wireProfile();
+wireAdmin();
 wireTabs();
 
 </script>

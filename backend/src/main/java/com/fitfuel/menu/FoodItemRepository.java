@@ -9,4 +9,6 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Long> {
     List<FoodItem> findByMenuTypeAndActiveTrue(MenuType menuType);
 
     List<FoodItem> findByActiveTrue();
+
+    List<FoodItem> findAllByOrderByCategoryAscNameAsc();
 }

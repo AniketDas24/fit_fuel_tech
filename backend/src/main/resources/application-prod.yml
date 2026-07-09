@@ -1,0 +1,34 @@
+# PROD profile — for production. Start with: --spring.profiles.active=prod
+#
+# Every value below is REQUIRED from the environment (no defaults): if any is
+# missing the app fails fast at startup rather than booting with an insecure or
+# wrong configuration. Provide them via real environment variables or .env.prod
+# (loaded by run-prod.sh). NEVER commit real production secrets.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      # "update" auto-syncs the schema on deploy. Fine for a small app; for a
+      # mature deployment prefer a migration tool (Flyway/Liquibase) + "validate".
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+
+fitfuel:
+  jwt:
+    # No default on purpose — a missing JWT_SECRET must stop a prod boot.
+    secret: ${JWT_SECRET}
+  admin:
+    # No default — a missing ADMIN_PASSWORD must stop a prod boot so the well-known
+    # dev password can never be seeded in production.
+    password: ${ADMIN_PASSWORD}
+
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: warn
+    com.fitfuel: info

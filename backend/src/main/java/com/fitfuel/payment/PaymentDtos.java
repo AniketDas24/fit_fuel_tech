@@ -1,5 +1,6 @@
 package com.fitfuel.payment;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -21,4 +22,15 @@ record PaymentResponse(Long id, Long orderId, BigDecimal amount, PaymentEntitySt
                 payment.getAmount(), payment.getStatus(), payment.getProvider(), payment.getGatewayReference(),
                 payment.getCreatedAt());
     }
+}
+
+record CreateRazorpayOrderRequest(@NotNull Long orderId) {
+}
+
+record RazorpayOrderResponse(String razorpayOrderId, String keyId, BigDecimal amount, String currency,
+                             Long orderId, Long paymentId) {
+}
+
+record VerifyPaymentRequest(@NotNull Long paymentId, @NotBlank String razorpayOrderId,
+                            @NotBlank String razorpayPaymentId, @NotBlank String razorpaySignature) {
 }

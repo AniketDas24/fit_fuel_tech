@@ -18,11 +18,14 @@ public class PaymentController {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final PaymentService paymentService;
 
-    public PaymentController(PaymentRepository paymentRepository, OrderRepository orderRepository, UserRepository userRepository) {
+    public PaymentController(PaymentRepository paymentRepository, OrderRepository orderRepository,
+                             UserRepository userRepository, PaymentService paymentService) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
+        this.paymentService = paymentService;
     }
 
     @PostMapping
@@ -47,6 +50,24 @@ public class PaymentController {
                 .stream()
                 .map(PaymentResponse::from)
                 .toList();
+    }
+
+    @PostMapping("/razorpay-order")
+    RazorpayOrderResponse razorpayOrder(Authentication authentication,
+                                        @Valid @RequestBody CreateRazorpayOrderRequest request) {
+        return paymentService.createRazorpayOrder(authentication.getName(), request.orderId());
+    }
+
+    @PostMapping("/verify")
+    PaymentResponse verify(Authentication authentication, @Valid @RequestBody VerifyPaymentRequest request) {
+        return paymentService.verifyPayment(authentication.getName(), request);
+    }
+
+    // Called by Razorpay's servers (no JWT). Authenticity is enforced by the signature.
+    @PostMapping("/webhook")
+    void webhook(@RequestBody(required = false) String payload,
+                 @RequestHeader(value = "X-Razorpay-Signature", required = false) String signature) {
+        paymentService.handleWebhook(payload == null ? "" : payload, signature == null ? "" : signature);
     }
 
     private AppUser user(Authentication authentication) {

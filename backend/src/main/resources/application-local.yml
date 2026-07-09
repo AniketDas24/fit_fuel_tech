@@ -1,3 +1,6 @@
+# LOCAL profile — for development and testing.
+# In-memory H2 (wiped on restart), dev-only JWT secret, sandbox payment/WhatsApp
+# credentials supplied via .env (loaded by run-local.sh).
 spring:
   datasource:
     url: jdbc:h2:mem:fitfuel;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;NON_KEYWORDS=USER,ORDER,VALUE;DB_CLOSE_DELAY=-1
@@ -7,9 +10,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
 
 fitfuel:
   jwt:
     secret: local-development-secret-with-at-least-32-characters
-    ttl-minutes: 1440

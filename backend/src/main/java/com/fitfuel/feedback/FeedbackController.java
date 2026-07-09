@@ -5,6 +5,7 @@ import com.fitfuel.order.OrderRepository;
 import com.fitfuel.user.AppUser;
 import com.fitfuel.user.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,12 @@ public class FeedbackController {
                 .stream()
                 .map(FeedbackResponse::from)
                 .toList();
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    List<AdminFeedbackResponse> allFeedback() {
+        return feedbackRepository.findAllByOrderByCreatedAtDesc().stream().map(AdminFeedbackResponse::from).toList();
     }
 
     private AppUser user(Authentication authentication) {

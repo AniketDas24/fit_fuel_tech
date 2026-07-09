@@ -8,4 +8,6 @@ import java.util.List;
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
     List<Feedback> findByUserOrderByCreatedAtDesc(AppUser user);
+
+    List<Feedback> findAllByOrderByCreatedAtDesc();
 }

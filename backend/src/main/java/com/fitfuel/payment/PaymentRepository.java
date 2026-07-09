@@ -8,4 +8,6 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByUserOrderByCreatedAtDesc(AppUser user);
+
+    List<Payment> findByGatewayReference(String gatewayReference);
 }

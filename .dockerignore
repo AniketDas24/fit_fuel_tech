@@ -1,0 +1,9 @@
+backend/target/
+frontend/
+**/.git/
+**/.idea/
+**/*.iml
+**/.DS_Store
+.env
+.env.prod
+*.md

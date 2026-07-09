@@ -16,6 +16,14 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$ROOT_DIR/backend"
 FRONTEND_PORT=8090
 
+if [[ -f "$ROOT_DIR/.env" ]]; then
+  echo "Loading environment variables from .env ..."
+  set -a
+  # shellcheck disable=SC1091
+  source "$ROOT_DIR/.env"
+  set +a
+fi
+
 if ! command -v mvn >/dev/null 2>&1; then
   echo "Error: Maven ('mvn') is required but was not found on PATH." >&2
   echo "Install it with: brew install maven" >&2

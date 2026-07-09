@@ -20,3 +20,10 @@ record FeedbackResponse(Long id, Long orderId, int rating, String comment, Insta
                 feedback.getComment(), feedback.getCreatedAt());
     }
 }
+
+record AdminFeedbackResponse(Long id, Long orderId, String userName, int rating, String comment, Instant createdAt) {
+    static AdminFeedbackResponse from(Feedback feedback) {
+        return new AdminFeedbackResponse(feedback.getId(), feedback.getOrder().getId(), feedback.getUser().getName(),
+                feedback.getRating(), feedback.getComment(), feedback.getCreatedAt());
+    }
+}
