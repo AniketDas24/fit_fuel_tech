@@ -10,4 +10,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
     List<Feedback> findByUserOrderByCreatedAtDesc(AppUser user);
 
     List<Feedback> findAllByOrderByCreatedAtDesc();
+
+    boolean existsByOrder_Id(Long orderId);
 }

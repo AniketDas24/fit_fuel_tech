@@ -743,6 +743,19 @@ table.menu td:first-child {
   grid-template-columns: 1fr 1fr;
   gap: 9px;
 }
+.star-rating { display: flex; gap: 6px; justify-content: center; margin-bottom: 4px; }
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 34px;
+  line-height: 1;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.1s;
+  padding: 2px;
+}
+.star-btn:hover { transform: scale(1.1); }
+.star-btn.active { color: var(--orange); }
 .auth-input {
   width: 100%;
   min-height: 42px;
@@ -847,6 +860,10 @@ table.menu td:first-child {
   .session-bar { align-items: flex-start; flex-direction: column; }
   .topbar-right { width: 100%; }
   .topbar .session-bar { width: 100%; }
+  /* More breathing room for tab labels on small screens so they don't crowd/wrap tightly */
+  .plan-tab { padding: 6px 10px; letter-spacing: 0.5px; }
+  .menu-subtab, .admin-subtab { padding: 7px 10px; letter-spacing: 0.5px; }
+  .plan-nav, .menu-subnav, .admin-subnav { gap: 5px; }
 }
 
 </style>
@@ -919,6 +936,31 @@ table.menu td:first-child {
       <div class="profile-fields" id="profile-fields">
         <div class="order-empty">Loading profile...</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="auth-modal-overlay hidden" id="feedback-modal-overlay">
+  <div class="auth-card">
+    <button class="auth-modal-close" type="button" id="feedback-modal-close" aria-label="Close">&times;</button>
+    <div class="auth-brand">
+      <div class="auth-title"><span class="fit">RATE</span><span class="fuel"> ORDER</span></div>
+      <div class="auth-kicker" id="feedback-order-label">Your Feedback</div>
+    </div>
+    <div class="auth-body">
+      <form class="auth-form" id="feedback-form">
+        <input type="hidden" name="orderId" value="">
+        <div class="star-rating" id="feedback-stars">
+          <button type="button" class="star-btn" data-value="1" aria-label="1 star">★</button>
+          <button type="button" class="star-btn" data-value="2" aria-label="2 stars">★</button>
+          <button type="button" class="star-btn" data-value="3" aria-label="3 stars">★</button>
+          <button type="button" class="star-btn" data-value="4" aria-label="4 stars">★</button>
+          <button type="button" class="star-btn" data-value="5" aria-label="5 stars">★</button>
+        </div>
+        <textarea class="auth-input" name="comment" rows="3" placeholder="Tell us about your experience (optional)"></textarea>
+        <button class="auth-btn" type="submit">Submit Feedback</button>
+      </form>
+      <div class="auth-status" id="feedback-status"></div>
     </div>
   </div>
 </div>
@@ -1522,7 +1564,7 @@ function wireOrderMenu() {
 }
 
 /* -- ORDER HISTORY ---------------------------------------------------------- */
-function renderOrderHistory(orders) {
+function renderOrderHistory(orders, reviewedOrderIds) {
   const list = authEl("order-history-list");
   if (!list) return;
   if (!orders.length) {
@@ -1544,15 +1586,25 @@ function renderOrderHistory(orders) {
       <div class="order-history-actions">
         <button class="order-btn pay-now-btn" type="button" data-order-id="${order.id}">Pay Now</button>
       </div>` : ""}
+      ${order.status === "DELIVERED" && !reviewedOrderIds.has(order.id) ? `
+      <div class="order-history-actions">
+        <button class="auth-btn secondary rate-order-btn" type="button" data-order-id="${order.id}">★ Rate this order</button>
+      </div>` : ""}
     </div>
   `).join("");
 }
 
 function wireOrderHistory() {
   authEl("order-history-list")?.addEventListener("click", event => {
-    const button = event.target.closest(".pay-now-btn");
-    if (!button) return;
-    startPayment(Number(button.dataset.orderId));
+    const payButton = event.target.closest(".pay-now-btn");
+    if (payButton) {
+      startPayment(Number(payButton.dataset.orderId));
+      return;
+    }
+    const rateButton = event.target.closest(".rate-order-btn");
+    if (rateButton) {
+      openFeedbackModal(Number(rateButton.dataset.orderId));
+    }
   });
 }
 
@@ -1565,8 +1617,12 @@ async function loadOrderHistory() {
   }
   list.innerHTML = '<div class="order-empty">Loading your orders...</div>';
   try {
-    const orders = await apiRequest("/orders");
-    renderOrderHistory(orders);
+    const [orders, feedback] = await Promise.all([
+      apiRequest("/orders"),
+      apiRequest("/feedbacks").catch(() => [])
+    ]);
+    const reviewedOrderIds = new Set(feedback.map(f => f.orderId));
+    renderOrderHistory(orders, reviewedOrderIds);
   } catch {
     list.innerHTML = '<div class="order-empty">Could not load your orders right now.</div>';
   }
@@ -1612,6 +1668,66 @@ function wireProfile() {
   authEl("profile-modal-close")?.addEventListener("click", closeProfileModal);
   authEl("profile-modal-overlay")?.addEventListener("click", event => {
     if (event.target.id === "profile-modal-overlay") closeProfileModal();
+  });
+}
+
+/* -- FEEDBACK --------------------------------------------------------------- */
+function openFeedbackModal(orderId) {
+  const form = authEl("feedback-form");
+  form.reset();
+  form.elements.orderId.value = orderId;
+  authEl("feedback-order-label").textContent = `Order #${orderId}`;
+  setSelectedStars(0);
+  authEl("feedback-status").textContent = "";
+  authEl("feedback-modal-overlay")?.classList.remove("hidden");
+}
+
+function closeFeedbackModal() {
+  authEl("feedback-modal-overlay")?.classList.add("hidden");
+}
+
+function setSelectedStars(rating) {
+  document.querySelectorAll("#feedback-stars .star-btn").forEach(btn => {
+    btn.classList.toggle("active", Number(btn.dataset.value) <= rating);
+  });
+  authEl("feedback-stars").dataset.rating = rating;
+}
+
+function wireFeedback() {
+  authEl("feedback-modal-close")?.addEventListener("click", closeFeedbackModal);
+  authEl("feedback-modal-overlay")?.addEventListener("click", event => {
+    if (event.target.id === "feedback-modal-overlay") closeFeedbackModal();
+  });
+
+  document.querySelectorAll("#feedback-stars .star-btn").forEach(btn => {
+    btn.addEventListener("click", () => setSelectedStars(Number(btn.dataset.value)));
+  });
+
+  authEl("feedback-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const rating = Number(authEl("feedback-stars").dataset.rating || 0);
+    if (!rating) {
+      authEl("feedback-status").textContent = "Please select a star rating.";
+      authEl("feedback-status").classList.add("bad");
+      return;
+    }
+    try {
+      await apiRequest("/feedbacks", {
+        method: "POST",
+        body: JSON.stringify({
+          orderId: Number(form.elements.orderId.value),
+          rating,
+          comment: form.elements.comment.value || null
+        })
+      });
+      closeFeedbackModal();
+      showToast("Thanks for your feedback!");
+      loadOrderHistory();
+    } catch (error) {
+      authEl("feedback-status").textContent = error.message;
+      authEl("feedback-status").classList.add("bad");
+    }
   });
 }
 
@@ -1946,6 +2062,7 @@ wireAuthGate();
 wireOrderMenu();
 wireOrderHistory();
 wireProfile();
+wireFeedback();
 wireAdmin();
 wireTabs();
 

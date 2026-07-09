@@ -67,8 +67,8 @@ public class NotificationService {
             return;
         }
         String normalized = normalizePhone(phone);
-        String message = buildMessage(order);
         try {
+            String message = buildMessage(order);
             whatsAppSender.send(normalized, message, buildTemplateVariables(order));
         } catch (Exception e) {
             // Never let a notification failure affect the order-status transaction that triggered it.
@@ -138,7 +138,7 @@ public class NotificationService {
 
     private String dishSummary(CustomerOrder order) {
         String summary = order.getItems().stream()
-                .map(item -> item.getQuantity() + "× " + item.getFoodItem().getName())
+                .map(item -> item.getQuantity() + "× " + item.getFoodItemName())
                 .collect(java.util.stream.Collectors.joining(", "));
         return summary.isBlank() ? "your meal" : summary;
     }

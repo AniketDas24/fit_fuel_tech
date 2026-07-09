@@ -27,10 +27,18 @@ public class FeedbackController {
 
     @PostMapping
     FeedbackResponse create(Authentication authentication, @Valid @RequestBody CreateFeedbackRequest request) {
+        AppUser currentUser = user(authentication);
+        var order = orderRepository.findById(request.orderId())
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+        if (!order.getUser().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("This order does not belong to you");
+        }
+        if (feedbackRepository.existsByOrder_Id(request.orderId())) {
+            throw new IllegalArgumentException("Feedback has already been submitted for this order");
+        }
         Feedback feedback = new Feedback();
-        feedback.setUser(user(authentication));
-        feedback.setOrder(orderRepository.findById(request.orderId())
-                .orElseThrow(() -> new NotFoundException("Order not found")));
+        feedback.setUser(currentUser);
+        feedback.setOrder(order);
         feedback.setRating(request.rating());
         feedback.setComment(request.comment());
         return FeedbackResponse.from(feedbackRepository.save(feedback));

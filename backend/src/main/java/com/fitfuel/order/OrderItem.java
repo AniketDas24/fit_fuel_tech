@@ -17,9 +17,17 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private CustomerOrder order;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "food_item_id", nullable = false)
+    // Nullable: admins can delete a menu item at any time (even with order history).
+    // The order still needs to render correctly afterward, so the name is snapshotted
+    // below at order-creation time rather than always read live off this reference.
+    @ManyToOne
+    @JoinColumn(name = "food_item_id")
     private FoodItem foodItem;
+
+    // Snapshot of the food item's name at the moment the order was placed, so order
+    // history keeps reading correctly even after the menu item itself is deleted.
+    @Column(name = "food_item_name", nullable = false)
+    private String foodItemName;
 
     @Column(nullable = false)
     private int quantity;
@@ -45,6 +53,14 @@ public class OrderItem {
 
     public void setFoodItem(FoodItem foodItem) {
         this.foodItem = foodItem;
+    }
+
+    public String getFoodItemName() {
+        return foodItemName;
+    }
+
+    public void setFoodItemName(String foodItemName) {
+        this.foodItemName = foodItemName;
     }
 
     public int getQuantity() {

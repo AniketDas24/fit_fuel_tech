@@ -37,8 +37,8 @@ record OrderResponse(Long id, OrderStatus status, BigDecimal totalAmount, Paymen
                 order.getPaymentStatus(),
                 order.getCreatedAt(),
                 order.getItems().stream()
-                        .map(item -> new OrderItemResponse(item.getFoodItem().getId(), item.getFoodItem().getName(),
-                                item.getQuantity(), item.getPrice()))
+                        .map(item -> new OrderItemResponse(item.getFoodItem() == null ? null : item.getFoodItem().getId(),
+                                item.getFoodItemName(), item.getQuantity(), item.getPrice()))
                         .toList()
         );
     }
@@ -62,8 +62,8 @@ record AdminOrderResponse(Long id, Long userId, String userName, String userEmai
                 order.getTotalAmount(),
                 order.getCreatedAt(),
                 order.getItems().stream()
-                        .map(item -> new OrderItemResponse(item.getFoodItem().getId(), item.getFoodItem().getName(),
-                                item.getQuantity(), item.getPrice()))
+                        .map(item -> new OrderItemResponse(item.getFoodItem() == null ? null : item.getFoodItem().getId(),
+                                item.getFoodItemName(), item.getQuantity(), item.getPrice()))
                         .toList()
         );
     }

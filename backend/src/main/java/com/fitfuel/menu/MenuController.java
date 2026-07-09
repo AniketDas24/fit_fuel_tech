@@ -68,10 +68,9 @@ public class MenuController {
     void delete(@PathVariable Long id) {
         FoodItem item = foodItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Food item not found"));
-        if (orderItemRepository.existsByFoodItem_Id(id)) {
-            throw new IllegalArgumentException(
-                    "Cannot delete \"" + item.getName() + "\" — it appears in existing orders. Deactivate it instead.");
-        }
+        // Deletable anytime, even with existing orders: past OrderItem rows already carry
+        // a snapshotted name/price, so detaching the live reference keeps order history intact.
+        orderItemRepository.detachFoodItem(id);
         cartItemRepository.deleteByFoodItem_Id(id); // safe to drop: carts are ephemeral, not historical records
         foodItemRepository.delete(item);
     }
